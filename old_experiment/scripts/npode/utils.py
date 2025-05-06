@@ -21,8 +21,8 @@ def gen_data(model='vdp',Ny=[30],tend=8,x0=np.asarray([2.0,-3.0]),nstd=0.1):
     x0in = x0
     Nt = len(Ny)
     x0 = np.zeros((Nt,2))
-    t = np.zeros((Nt,), dtype=np.object)
-    Y = np.zeros((Nt,), dtype=np.object)
+    t = np.zeros((Nt,), dtype=object)
+    Y = np.zeros((Nt,), dtype=object)
 
     mean_ = np.array([-2,1])
     var_ = np.eye(2)*0.5

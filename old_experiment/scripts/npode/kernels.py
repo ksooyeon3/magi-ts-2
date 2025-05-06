@@ -1,7 +1,8 @@
-from .param import Param
+from param import Param
 
 import tensorflow as tf
-from gpflow import transforms
+# from gpflow import transforms
+# from gpflow.utilities import positive
 
 float_type = tf.float64
 jitter_level = 1e-6
@@ -11,13 +12,13 @@ class Kernel:
                  summ=False,fix_sf=False,fix_ell=False):
         with tf.name_scope(name):
             sf = Param(sf0,
-                              transform=transforms.Log1pe(),
+                              transform="positive",
                               name="sf",
                               learning_rate = learning_rate,
                               summ = summ,
                               fixed = fix_sf)
             ell = Param(ell0,
-                              transform=transforms.Log1pe(),
+                              transform="positive",
                               name="ell",
                               learning_rate = learning_rate,
                               summ = summ,

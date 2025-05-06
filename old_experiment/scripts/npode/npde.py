@@ -1,15 +1,18 @@
 import numpy as np
 import tensorflow as tf
-import tensorflow.contrib.distributions as tfd
-from .integrators import ODERK4, SDEEM
-from .kernels import OperatorKernel
+# import tensorflow.contrib.distributions as tfd
+import tensorflow_probability as tfp
+tfd = tfp.distributions
 
-from gpflow import transforms
-from .param import Param
+from integrators import ODERK4, SDEEM
+from kernels import OperatorKernel
+
+# from gpflow import transforms
+from param import Param
 
 float_type = tf.float64
-jitter0 = 1e-6
-
+jitter0 = 0.1
+print(f"this is jitter{jitter0}")
 
 class NPODE:
     def __init__(self,Z0,U0,sn0,kern,jitter=jitter0,
@@ -49,7 +52,7 @@ class NPODE:
                        name = "sn",
                        summ = summ,
                        fixed = fix_sn,
-                       transform = transforms.Log1pe())
+                       transform = "positive")
         self.Z  = Z()
         self.U  = U()
         self.sn = sn()
@@ -80,14 +83,14 @@ class NPODE:
             Kzz = kern.K(Z) + tf.eye(M, dtype=float_type) * self.jitter
         else:
             Kzz = kern.K(Z) + tf.eye(M*D, dtype=float_type) * self.jitter
-        Lz = tf.cholesky(Kzz)
+        Lz = tf.linalg.cholesky(Kzz)
 
         Kzx = kern.K(Z, X)
 
-        A = tf.matrix_triangular_solve(Lz, Kzx, lower=True)
+        A = tf.linalg.triangular_solve(Lz, Kzx, lower=True)
 
         if not self.whiten:
-            A = tf.matrix_triangular_solve(tf.transpose(Lz), A, lower=False)
+            A = tf.linalg.triangular_solve(tf.transpose(Lz), A, lower=False)
 
         f = tf.matmul(A, U, transpose_a=True)
 
